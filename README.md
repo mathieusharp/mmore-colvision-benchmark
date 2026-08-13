@@ -13,10 +13,14 @@ set was written** — and most published comparisons never say.
 Academic project (Cassiopée), Télécom SudParis, run on EPFL LiGHT's Run:AI cluster.
 
 **Two experiments.** The first runs on figure-rich biomedical lecture slides, with
-questions written by a model *looking at the page* and validated by humans (§1, §2). The
+questions written by a model *looking at the page* and validated by humans
+([§1](#1-with-vision-grounded-queries-visual-retrieval-wins--and-cost-not-quality-separates-the-leaders),
+[§2](#2-translating-the-query-only-hurts-the-small-encoders)). The
 second runs on scientific literature natively written in five languages, with questions
-drawn from the page *text* (§3). They bracket the problem from both ends, which is what
-makes the query-grounding effect visible at all.
+drawn from the page *text*
+([§3](#3-on-text-grounded-queries-the-margin-shrinks--but-does-not-flip)). They bracket
+the problem from both ends, which is what makes the query-grounding effect visible at
+all.
 
 **What is held constant.** A comparison only means something if the encoder is the only
 moving part. Across all 54 cells — one cell being a single (encoder, corpus) pair — the
@@ -34,16 +38,16 @@ re-tuned in its own favour. Only the visual encoder and the corpus vary.
   <img alt="Retrieval quality on ViDoRe v2 biomedical lectures" src="assets/retrieval_quality.png">
 </picture>
 
+On [ViDoRe v2](https://huggingface.co/datasets/vidore/biomedical_lectures_eng_v2)
+biomedical lectures — 1,016 figure-rich pages, 160 queries written by a model *looking
+at the page* and then validated by human annotators, with graded multi-page relevance —
+all six encoders beat both text pipelines. The best is **+28% nDCG@5** over mmore's own text
+retriever; the smallest, ColSmol-256M, only **+7%**.
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/retrieval_cost-dark.png">
   <img alt="Retrieval cost per query on ViDoRe v2 biomedical lectures" src="assets/retrieval_cost.png">
 </picture>
-
-On [ViDoRe v2](https://huggingface.co/datasets/vidore) biomedical lectures — 1,016
-figure-rich pages, 160 queries written by a model *looking at the page* and then
-validated by human annotators, with graded multi-page relevance — all six
-encoders beat both text pipelines. The best is **+28% nDCG@5** over mmore's own text
-retriever; the smallest, ColSmol-256M, only **+7%**.
 
 The top three sit within **0.006 nDCG@5** of each other, so quality does not decide
 between them. Cost does: retrieval wall-clock per query spans **2.11 s (ColGemma3) to
@@ -78,7 +82,9 @@ ViDoRe leaderboard; MAP and Recall are capped by `top_k=10`.
 </picture>
 
 Re-asking the same 160 questions in four languages **against the index built for
-English** (ViDoRe v2's official multilingual queries, not a single page re-embedded)
+English** ([ViDoRe v2's official multilingual
+queries](https://huggingface.co/datasets/vidore/biomedical_lectures_v2), not a single
+page re-embedded)
 costs the four large encoders at most 0.09 nDCG@5. The two ColSmol models lose up to
 0.38 — ColSmol-256M falls from 0.526 to 0.147. Multilingual query understanding is the
 first thing model compression sacrifices.

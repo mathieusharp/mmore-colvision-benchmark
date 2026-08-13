@@ -246,7 +246,10 @@ def save(fig, stem: str, title: str, *, box: dict | None = None) -> None:
     # stacked in the report's columns, which carry LaTeX captions instead.
     fig.suptitle(title, fontsize=9, fontweight="bold", color=INK,
                  x=0.0, y=1.04, ha="left")
-    fig.savefig(PNG_DIR / f"{stem}{THEME.suffix}.png", dpi=200,
+    # 400 dpi on a 3.35 in figure gives ~1340 px, so the PNG fills GitHub's
+    # README column (~830 px) at 2x and stays sharp on a HiDPI screen. At the
+    # report's 200 dpi it rendered at 1x, below the column width and soft.
+    fig.savefig(PNG_DIR / f"{stem}{THEME.suffix}.png", dpi=400,
                 bbox_inches="tight", pad_inches=0.05)
     plt.close(fig)
     print(f"wrote {stem}{THEME.suffix}.png" + ("" if THEME.name != "light" else f" / {stem}.pdf"))

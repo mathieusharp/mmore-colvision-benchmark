@@ -1,30 +1,15 @@
 #!/usr/bin/env bash
-# Propager les fichiers modifiés sur le cluster via b64 (à lancer depuis la racine du repo,
-# après "source .rcp-env"). Les chunks b64 sont générés DYNAMIQUEMENT depuis les fichiers
-# courants — pas de blob codé en dur qui pourrait se périmer.
+# Push the working tree's version of the benchmark files to the cluster repo
+# without a git push: they are tarred, base64-encoded and unpacked by a short
+# RunAI job. Run from the repo root, after "source .rcp-env".
 #
-# Fichiers inclus :
-#   pyproject.toml                  — pin mmore 4102f96 + extra colvision (tf 5.3.0)
-#   uv.lock                         — lockfile aligné (colpali-engine 0.3.16, transformers 5.3.0)
-#   configs/models.yaml             — 6 modèles (ColPali, ColQwen2/2.5, ColGemma3, ColSmol ×2)
-#   runners/orchestrate.py          — Track B per-(model,lang) config rendering + data_path
-#   clients/vllm_client.py          — guided_json parameter
-#   queries/inverse_query_gen.py    — few-shot + GUIDED_JSON_SCHEMA
-#   queries/cli.py                  — --few-shot / --guided-json flags
-#   corpus/cli.py                   — --pmcids-json on download-pmc
-#   scripts/rcp/submit.sh           — corpus-fr / corpus-zh + --few-shot --guided-json
-#   corpus/hal_downloader.py        — connecteur HAL (sort stable + seeded offset)
-#   corpus/pmc_zh_sampler.py        — connecteur PMC ZH
-#   corpus/ocr_pages.py             — page text from mmore `process` OCR (ViDoRe baselines)
-#   queries/pdf_pages.py            — page_base param (1-based ids, ViDoRe qrels alignment)
-#   corpus/vidore_v2.py             — + multilingual query/qrels builder (Track B ViDoRe)
-#   runners/run_track_b_vidore.py   — Track B ViDoRe: re-retrieve on Track A's FIXED index
-#   runners/cli.py                  — track-b-vidore command
-# Après ce patch, re-bootstrapper le venv cluster :
-#   FORCE_BOOTSTRAP=1 ./scripts/rcp/bootstrap-venv.sh --wait
+# The archive is built from the files listed in FILES below, read at run time,
+# so this script can never ship a stale hard-coded blob. When the venv itself
+# needs to change (a new pin in pyproject.toml or uv.lock), re-bootstrap it
+# afterwards: FORCE_BOOTSTRAP=1 ./scripts/rcp/bootstrap-venv.sh --wait
 set -euo pipefail
 
-[ -f .rcp-env ] || { echo "Lancer depuis la racine du repo (où .rcp-env existe)." >&2; exit 1; }
+[ -f .rcp-env ] || { echo "Run from the repo root (where .rcp-env lives)." >&2; exit 1; }
 source .rcp-env
 
 FILES=(
@@ -57,19 +42,13 @@ FILES=(
     configs/track_b_zh.yaml
     configs/track_b_de.yaml
     configs/track_b_es.yaml
-    configs/track_b_fr_native.yaml
-    configs/track_b_zh_native.yaml
-    configs/track_b_de_native.yaml
-    configs/track_b_es_native.yaml
-    configs/track_b_en_phi4.yaml
-    configs/track_b_zh_phi4.yaml
 )
 
 for f in "${FILES[@]}"; do
-    [ -f "$f" ] || { echo "[patch][ERROR] fichier manquant : $f" >&2; exit 1; }
+    [ -f "$f" ] || { echo "[patch][ERROR] missing file: $f" >&2; exit 1; }
 done
 
-# Archive déterministe → base64 sur une seule ligne.
+# Deterministic archive, base64 on a single line.
 TMP_TGZ=$(mktemp /tmp/bcv-patch.XXXXXX.tar.gz)
 trap 'rm -f "${TMP_TGZ}"' EXIT
 tar -czf "${TMP_TGZ}" "${FILES[@]}"
@@ -77,7 +56,7 @@ B64=$(base64 -w0 "${TMP_TGZ}")
 NBYTES=$(wc -c < "${TMP_TGZ}")
 echo "[patch] archive ${NBYTES} bytes → ${#B64} chars b64"
 
-# Découpe en chunks de 2700 chars (sous la limite d'une var d'env k8s).
+# Split into 2700-char chunks, under the size limit of one k8s env var.
 CHUNK=2700
 ENV_ARGS=()
 CAT_CMD=""
@@ -99,7 +78,7 @@ echo "[patch] ${i} chunks"
 REMOTE_CMD="${CAT_CMD} && base64 -d /tmp/p.b64 > /tmp/patch.tar.gz && tar -xzf /tmp/patch.tar.gz -C /mloscratch/users/mbonnet/bcv-dev && echo PATCH_OK"
 
 NAME="bcv-patch-$(date +%H%M%S)"
-echo "[patch] Soumission ${NAME} — ${#FILES[@]} fichiers, ${i} chunks b64"
+echo "[patch] submitting ${NAME} — ${#FILES[@]} files, ${i} b64 chunks"
 runai submit "${NAME}" \
   --image "${IMAGE}" \
   --gpu 0 \
@@ -111,4 +90,4 @@ runai submit "${NAME}" \
   --suppress-deprecation-message \
   "${ENV_ARGS[@]}" \
   -- bash -c "${REMOTE_CMD}"
-echo "[patch] Soumis — vérifier avec : runai logs ${NAME} -p light-mbonnet --suppress-deprecation-message"
+echo "[patch] submitted — check with: runai logs ${NAME} -p light-mbonnet --suppress-deprecation-message"

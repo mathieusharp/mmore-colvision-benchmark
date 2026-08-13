@@ -2,9 +2,10 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.11
     hooks:
+      # Lint only. `ruff format` is deliberately not run: several modules and
+      # the figure script carry hand-set layout the formatter would flatten.
       - id: ruff
         args: ["--fix"]
-      - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

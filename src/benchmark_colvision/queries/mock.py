@@ -37,6 +37,9 @@ _STOP = {
 }
 _TOKEN = re.compile(r"[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\-]{4,}")
 
+# A one-term question is too generic to have a single answering page.
+MIN_TERMS_PER_QUERY = 2
+
 
 def _distinctive_terms(text: str, k: int) -> list[str]:
     """Return up to k distinctive content terms, deterministically.
@@ -53,7 +56,7 @@ def _distinctive_terms(text: str, k: int) -> list[str]:
             continue
         seen[key] = surface
     terms = list(seen.values())
-    terms.sort(key=lambda w: len(w), reverse=True)
+    terms.sort(key=len, reverse=True)
     return terms[:k]
 
 
@@ -86,7 +89,7 @@ def generate_mock_for_page(
     out: list[SyntheticQuery] = []
     for i in range(n_queries):
         chunk = terms[i * terms_per_query : (i + 1) * terms_per_query]
-        if len(chunk) < 2:  # not enough signal on this page for query #i
+        if len(chunk) < MIN_TERMS_PER_QUERY:  # not enough signal on this page for query #i
             break
         joined = ", ".join(chunk)
         out.append(

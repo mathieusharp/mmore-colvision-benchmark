@@ -99,18 +99,18 @@ def evaluate_batch(
     out: dict[str, float] = {}
     for k in ks:
         out[f"precision@{k}"] = macro_average(
-            precision_at_k(r, rel, k) for r, rel in zip(retrieved_per_query, relevant_per_query)
+            precision_at_k(r, rel, k) for r, rel in zip(retrieved_per_query, relevant_per_query, strict=True)
         )
         out[f"recall@{k}"] = macro_average(
-            recall_at_k(r, rel, k) for r, rel in zip(retrieved_per_query, relevant_per_query)
+            recall_at_k(r, rel, k) for r, rel in zip(retrieved_per_query, relevant_per_query, strict=True)
         )
         out[f"ndcg@{k}"] = macro_average(
-            ndcg_at_k(r, grel, k) for r, grel in zip(retrieved_per_query, relevance_per_query)
+            ndcg_at_k(r, grel, k) for r, grel in zip(retrieved_per_query, relevance_per_query, strict=True)
         )
     out["mrr"] = macro_average(
-        reciprocal_rank(r, rel) for r, rel in zip(retrieved_per_query, relevant_per_query)
+        reciprocal_rank(r, rel) for r, rel in zip(retrieved_per_query, relevant_per_query, strict=True)
     )
     out["map"] = macro_average(
-        average_precision(r, rel) for r, rel in zip(retrieved_per_query, relevant_per_query)
+        average_precision(r, rel) for r, rel in zip(retrieved_per_query, relevant_per_query, strict=True)
     )
     return out

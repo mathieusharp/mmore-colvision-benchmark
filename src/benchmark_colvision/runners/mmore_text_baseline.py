@@ -85,10 +85,10 @@ def collect_pages(
 
 def build_samples(doc_ids: list[str], texts: list[str]):
     """One mmore ``MultimodalSample`` per page; identity in pk id + dynamic file_path."""
-    from mmore.type import DocumentMetadata, MultimodalSample
+    from mmore.type import DocumentMetadata, MultimodalSample  # noqa: PLC0415
 
     samples = []
-    for doc_id, text in zip(doc_ids, texts):
+    for doc_id, text in zip(doc_ids, texts, strict=True):
         samples.append(
             MultimodalSample(
                 text=text,
@@ -145,10 +145,10 @@ def run_cell(args: argparse.Namespace) -> BenchmarkRecord:
               f"file_path keeps the full id (e.g. {over[0]!r})", flush=True)
     samples = build_samples(doc_ids, texts)
 
-    from mmore.index.indexer import DBConfig, Indexer, IndexerConfig
-    from mmore.rag.model.dense.base import DenseModelConfig
-    from mmore.rag.model.sparse.base import SparseModelConfig
-    from mmore.rag.retriever import Retriever, RetrieverConfig
+    from mmore.index.indexer import DBConfig, Indexer, IndexerConfig  # noqa: PLC0415
+    from mmore.rag.model.dense.base import DenseModelConfig  # noqa: PLC0415
+    from mmore.rag.model.sparse.base import SparseModelConfig  # noqa: PLC0415
+    from mmore.rag.retriever import Retriever, RetrieverConfig  # noqa: PLC0415
 
     idx_cfg = IndexerConfig(
         dense_model=DenseModelConfig(model_name=args.dense_model, is_multimodal=False),
@@ -206,7 +206,7 @@ def run_cell(args: argparse.Namespace) -> BenchmarkRecord:
     )
 
     (workdir / "retrieval.json").write_text(
-        json.dumps([{"query": q, "ranked": r} for q, r in zip(questions, ranked)], indent=2)
+        json.dumps([{"query": q, "ranked": r} for q, r in zip(questions, ranked, strict=True)], indent=2)
     )
 
     cell_id = CellId(

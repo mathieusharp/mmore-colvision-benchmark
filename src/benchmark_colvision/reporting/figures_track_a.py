@@ -66,8 +66,8 @@ def scaling_curve(
     ci = ci.sort_values(["model_id", "pages"])
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    for model_id, sub in ci.groupby("model_id"):
-        sub = sub.dropna(subset=["pages"])
+    for model_id, group in ci.groupby("model_id"):
+        sub = group.dropna(subset=["pages"])
         ax.plot(sub["pages"], sub["point"], marker="o", label=model_id)
         ax.fill_between(sub["pages"], sub["lower"], sub["upper"], alpha=0.18)
     ax.set_xlabel("Corpus size (pages)")
@@ -111,9 +111,9 @@ def latency_curve(df: pd.DataFrame, out_path: Path) -> Path:
     """Latency p50/p95/p99 vs corpus size, faceted per model."""
     metrics = ("performance.latency_p50_ms", "performance.latency_p95_ms", "performance.latency_p99_ms")
     fig, axes = plt.subplots(1, 3, figsize=(13, 4), sharey=True)
-    for ax, metric in zip(axes, metrics):
-        for model_id, sub in df.groupby("model_id"):
-            sub = sub.dropna(subset=[metric]).sort_values("palier_id")
+    for ax, metric in zip(axes, metrics, strict=True):
+        for model_id, group in df.groupby("model_id"):
+            sub = group.dropna(subset=[metric]).sort_values("palier_id")
             sub_means = sub.groupby("palier_id")[metric].mean().reindex(PALIER_ORDER).dropna()
             pages = [PALIER_PAGES[p] for p in sub_means.index]
             ax.plot(pages, sub_means.values, marker="o", label=model_id)

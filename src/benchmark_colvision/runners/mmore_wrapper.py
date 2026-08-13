@@ -131,18 +131,17 @@ def _make_mmore_qf(queries_file: Path) -> Path:
     and raises TypeError. This converter extracts the 'question' field and
     writes one JSON-encoded string per line, which mmore can handle.
     """
-    import json as _json
     out = queries_file.parent / (queries_file.stem + "_mmore.jsonl")
     lines = []
     for line in queries_file.read_text().splitlines():
         if not line.strip():
             continue
         try:
-            obj = _json.loads(line)
+            obj = json.loads(line)
             q = obj.get("question") or obj.get("query") or str(obj)
         except Exception:
             q = line.strip()
-        lines.append(_json.dumps(q))
+        lines.append(json.dumps(q))
     out.write_text("\n".join(lines) + "\n")
     return out
 
@@ -150,7 +149,7 @@ def _make_mmore_qf(queries_file: Path) -> Path:
 def _ensure_milvus_dir(index_config: Path) -> None:
     """Parse db_path from the index YAML and mkdir its parent (Milvus won't do it)."""
     try:
-        import yaml  # type: ignore[import-not-found]
+        import yaml  # type: ignore[import-not-found]  # noqa: PLC0415
         cfg = yaml.safe_load(index_config.read_text())
         db_path = cfg.get("milvus", {}).get("db_path") or cfg.get("db_path")
         if db_path:

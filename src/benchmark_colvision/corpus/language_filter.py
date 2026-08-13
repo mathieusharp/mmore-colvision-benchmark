@@ -12,11 +12,11 @@ _SEEDED = False
 
 
 def _seed_langdetect() -> None:
-    global _SEEDED
+    global _SEEDED  # noqa: PLW0603 — one-shot flag for a process-wide side effect
     if _SEEDED:
         return
     try:
-        from langdetect import DetectorFactory  # type: ignore[import-not-found]
+        from langdetect import DetectorFactory  # type: ignore[import-not-found]  # noqa: PLC0415
 
         DetectorFactory.seed = 0
     except ImportError:
@@ -30,8 +30,8 @@ def detect_language(text: str, min_chars: int = 80) -> str | None:
         return None
     _seed_langdetect()
     try:
-        from langdetect import detect  # type: ignore[import-not-found]
-        from langdetect.lang_detect_exception import (
+        from langdetect import detect  # type: ignore[import-not-found]  # noqa: PLC0415
+        from langdetect.lang_detect_exception import (  # noqa: PLC0415
             LangDetectException,  # type: ignore[import-not-found]
         )
     except ImportError:

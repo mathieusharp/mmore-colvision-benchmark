@@ -60,7 +60,7 @@ def test_pdfs_reconstructed_in_corpus_id_order(built):
 
 
 def test_manifest_shape(built):
-    tmp_path, result = built
+    _, result = built
     manifest = CorpusManifest.load(result.manifest_path)
     assert manifest.total_pages == 3
     assert [e.pdf_path for e in manifest.pdfs] == ["doc_0000.pdf", "doc_0001.pdf"]

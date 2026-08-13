@@ -49,8 +49,8 @@ def pages_from_ocr(merged_results_path: Path | str) -> tuple[list[str], list[str
     doc_ids: list[str] = []
     texts: list[str] = []
     with open(merged_results_path) as f:
-        for line in f:
-            line = line.strip()
+        for raw in f:
+            line = raw.strip()
             if not line:
                 continue
             sample = json.loads(line)

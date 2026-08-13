@@ -20,7 +20,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from summarize_results import BASELINES, LANGS, MODELS, RESULTS, VIDORE_LANGS, ndcg5  # noqa: E402
+from summarize_results import BASELINES, LANGS, MODELS, RESULTS, VIDORE_LANGS, ndcg5
 
 ROOT = Path(__file__).resolve().parents[1]
 PDF_DIR = ROOT / "report" / "figures"
@@ -136,7 +136,9 @@ BG, INK, INK_2, MUTED, REF, REF_SOFT, SEQ = (
 
 
 def apply_theme(theme: Theme) -> None:
-    global THEME, BG, INK, INK_2, MUTED, REF, REF_SOFT, SEQ
+    # The palette is module state on purpose: every helper below reads the
+    # current theme's colours by name, and main() renders the whole set twice.
+    global THEME, BG, INK, INK_2, MUTED, REF, REF_SOFT, SEQ  # noqa: PLW0603
     THEME = theme
     BG, INK, INK_2 = theme.bg, theme.ink, theme.ink_2
     MUTED, REF, REF_SOFT, SEQ = theme.muted, theme.ref, theme.ref_soft, theme.seq
@@ -276,10 +278,10 @@ def fig_retrieval_quality() -> None:
     ax.barh(ys_refs, [v for _, v in refs], height=0.62,
             color=REF_SOFT, edgecolor=REF, linewidth=0.6, zorder=3)
 
-    for y, value in zip(ys_models, [scores[m] for m in order]):
+    for y, value in zip(ys_models, [scores[m] for m in order], strict=True):
         ax.text(value + 0.012, y, num(value, 3), va="center",
                 fontsize=8, color=INK_2, zorder=5)
-    for y, (_, value) in zip(ys_refs, refs):
+    for y, (_, value) in zip(ys_refs, refs, strict=True):
         ax.text(value + 0.012, y, num(value, 3), va="center",
                 fontsize=8, color=REF, zorder=5)
 
@@ -419,7 +421,7 @@ def fig_multilingual_heatmap() -> None:
     ax.xaxis.set_ticks_position("top")
     ax.set_yticks(range(len(rows)))
     ax.set_yticklabels([r[0] for r in rows], color=INK_2)
-    for label, model in zip(ax.get_yticklabels(), list(MODELS) + list(BASELINES.values())):
+    for label, model in zip(ax.get_yticklabels(), list(MODELS) + list(BASELINES.values()), strict=True):
         if model not in MODELS:
             label.set_style("italic")
             label.set_color(MUTED)

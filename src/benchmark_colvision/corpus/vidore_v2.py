@@ -87,7 +87,10 @@ def _add_image_page(pdf: fitz.Document, image: Image.Image, *, dpi: int) -> None
     page.insert_image(page.rect, stream=buf.getvalue())
 
 
-def build_corpus_from_records(
+# One linear pass: group pages, render PDFs, hash them, then write the manifest,
+# the queries and the qrels. Splitting it would only move the shared state into
+# arguments.
+def build_corpus_from_records(  # noqa: PLR0915
     corpus_rows: Iterable[Mapping[str, Any]],
     query_rows: Iterable[Mapping[str, Any]],
     qrel_rows: Iterable[Mapping[str, Any]],
@@ -231,7 +234,7 @@ def download_and_build(
     dpi: int = MMORE_RENDER_DPI,
 ) -> BuildResult:
     """Download a ViDoRe v2 dataset from the Hub and build the mmore corpus."""
-    from datasets import load_dataset
+    from datasets import load_dataset  # noqa: PLC0415
 
     corpus = load_dataset(repo, "corpus", split=split, cache_dir=cache_dir)
     queries = load_dataset(repo, "queries", split=split, cache_dir=cache_dir)
@@ -242,7 +245,7 @@ def download_and_build(
         qrel_rows=qrels,
         out_dir=out_dir,
         language=language,
-        manifest_name=manifest_name or repo.split("/")[-1],
+        manifest_name=manifest_name or repo.rsplit("/", maxsplit=1)[-1],
         min_score=min_score,
         dpi=dpi,
     )
@@ -387,7 +390,7 @@ def download_and_build_language(
     min_score: int = 1,
 ) -> LanguageQueryResult:
     """Download one query-language slice of the ViDoRe v2 multilingual release."""
-    from datasets import load_dataset
+    from datasets import load_dataset  # noqa: PLC0415
 
     corpus = load_dataset(repo, "corpus", split=split, cache_dir=cache_dir)
     corpus = corpus.remove_columns([c for c in corpus.column_names if c == "image"])

@@ -89,9 +89,16 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "RUF", "SIM", "PL"]
 ignore = ["E501", "PLR0913"]
+# "6 models × 5 languages" is a multiplication sign, not a stray glyph.
+allowed-confusables = ["×"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["PLR2004", "S101"]
+# Tests import inside a test to skip cleanly when an optional dependency
+# (pandas, matplotlib, scipy) is absent from the environment.
+"tests/**" = ["PLR2004", "S101", "PLC0415"]
+# Each `bcv-corpus` subcommand imports its own backend, so `--help` and a PMC
+# download do not pay for PyMuPDF, `datasets` or the HAL client.
+"src/benchmark_colvision/corpus/cli.py" = ["PLC0415"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

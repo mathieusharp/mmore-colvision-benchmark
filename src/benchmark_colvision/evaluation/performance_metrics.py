@@ -62,7 +62,7 @@ class GPUMemoryTracker:
         self._pynvml = None
 
     def __enter__(self) -> GPUMemoryTracker:
-        import pynvml  # type: ignore[import-not-found]
+        import pynvml  # type: ignore[import-not-found]  # noqa: PLC0415
 
         self._pynvml = pynvml
         pynvml.nvmlInit()
@@ -86,14 +86,17 @@ class GPUMemoryTracker:
         return sample
 
 
+PERCENT_MAX = 100
+
+
 def percentile(values: list[float], p: float) -> float:
     """Linear-interpolation percentile (numpy-compatible, avoids the import)."""
     if not values:
         return float("nan")
-    if not 0 <= p <= 100:
-        raise ValueError("percentile p must be in [0, 100]")
+    if not 0 <= p <= PERCENT_MAX:
+        raise ValueError(f"percentile p must be in [0, {PERCENT_MAX}]")
     s = sorted(values)
-    k = (len(s) - 1) * p / 100
+    k = (len(s) - 1) * p / PERCENT_MAX
     f = int(k)
     c = min(f + 1, len(s) - 1)
     if f == c:

@@ -86,8 +86,8 @@ def dense_retrieve(
     top_k: int,
 ) -> list[list[int]]:
     """Return, per query, the indices of the top-k pages by cosine similarity."""
-    import torch
-    from sentence_transformers import SentenceTransformer
+    import torch  # noqa: PLC0415
+    from sentence_transformers import SentenceTransformer  # noqa: PLC0415
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = SentenceTransformer(dense_model, device=device)
@@ -152,7 +152,7 @@ def run_baseline_cell(args: argparse.Namespace) -> BenchmarkRecord:
     # Persist the ranked lists for auditing / re-scoring.
     (workdir / "retrieval.json").write_text(
         json.dumps(
-            [{"query": q, "ranked": r} for q, r in zip(questions, ranked)], indent=2
+            [{"query": q, "ranked": r} for q, r in zip(questions, ranked, strict=True)], indent=2
         )
     )
 

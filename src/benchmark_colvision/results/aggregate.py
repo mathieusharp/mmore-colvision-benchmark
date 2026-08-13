@@ -17,6 +17,9 @@ from benchmark_colvision.evaluation.statistical_tests import (
 )
 from benchmark_colvision.results.schema import BenchmarkRecord
 
+# The Wilcoxon signed-rank test needs at least two paired observations.
+MIN_PAIRED_OBSERVATIONS = 2
+
 
 def load_records(root: Path) -> list[BenchmarkRecord]:
     """Recursively load every *.json benchmark record under `root`."""
@@ -66,7 +69,7 @@ def per_cell_ci(
     for keys, sub in df.groupby(group_cols):
         values = sub[metric].dropna().to_numpy()
         ci: BootstrapCI = bootstrap_ci(values, n_resamples=n_resamples, seed=seed)
-        row = dict(zip(group_cols, keys if isinstance(keys, tuple) else (keys,)))
+        row = dict(zip(group_cols, keys if isinstance(keys, tuple) else (keys,), strict=True))
         row.update(
             metric=metric,
             point=ci.point_estimate,
@@ -93,7 +96,7 @@ def pairwise_wilcoxon(
         for b in models[i + 1 :]:
             sub_a = df[df[model_col] == a].sort_values(pair_col)[metric].to_numpy()
             sub_b = df[df[model_col] == b].sort_values(pair_col)[metric].to_numpy()
-            if len(sub_a) != len(sub_b) or len(sub_a) < 2:
+            if len(sub_a) != len(sub_b) or len(sub_a) < MIN_PAIRED_OBSERVATIONS:
                 continue
             res = wilcoxon_paired(sub_a, sub_b)
             rows.append(
@@ -110,6 +113,6 @@ def pairwise_wilcoxon(
     if not rows:
         return pd.DataFrame(rows)
     adj = holm_correct(pvals)
-    for r, p in zip(rows, adj):
+    for r, p in zip(rows, adj, strict=True):
         r["pvalue_holm"] = p
     return pd.DataFrame(rows)

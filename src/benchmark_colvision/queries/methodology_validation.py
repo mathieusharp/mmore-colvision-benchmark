@@ -12,6 +12,9 @@ from dataclasses import dataclass
 import numpy as np
 from scipy import stats
 
+# Below three pairs a correlation coefficient carries no information.
+MIN_PAIRED_SCORES = 3
+
 
 @dataclass
 class ValidationReport:
@@ -34,8 +37,10 @@ def correlate(
         raise ValueError(
             f"auto and human score lists differ in length: {len(auto_scores)} vs {len(human_scores)}"
         )
-    if len(auto_scores) < 3:
-        raise ValueError("Need at least 3 paired scores to compute correlation")
+    if len(auto_scores) < MIN_PAIRED_SCORES:
+        raise ValueError(
+            f"Need at least {MIN_PAIRED_SCORES} paired scores to compute correlation"
+        )
     a = np.asarray(auto_scores, dtype=float)
     h = np.asarray(human_scores, dtype=float)
     # If either side has zero variance, Pearson is undefined.

@@ -20,7 +20,7 @@ def track_a_table(df: pd.DataFrame, metric: str = "retrieval.ndcg_at_5") -> str:
     ci = per_cell_ci(df, metric=metric, group_cols=["model_id", "palier_id"])
     pivot = ci.pivot(index="model_id", columns="palier_id", values=["point", "lower", "upper"])
     paliers = sorted(set(ci["palier_id"].dropna()))
-    cols = " & ".join(["Model"] + paliers)
+    cols = " & ".join(["Model", *paliers])
     lines = [
         "\\begin{tabular}{l" + "c" * len(paliers) + "}",
         "\\toprule",
@@ -50,7 +50,7 @@ def track_b_table(df: pd.DataFrame, metric: str = "retrieval.ndcg_at_5") -> str:
     ci = per_cell_ci(df, metric=metric, group_cols=["model_id", "language"])
     pivot = ci.pivot(index="model_id", columns="language", values=["point", "lower", "upper"])
     langs = sorted(set(ci["language"].dropna()))
-    cols = " & ".join(["Model"] + langs)
+    cols = " & ".join(["Model", *langs])
     lines = [
         "\\begin{tabular}{l" + "c" * len(langs) + "}",
         "\\toprule",

@@ -206,7 +206,9 @@ _JSON_BLOCK = re.compile(r"\[.*\]", re.DOTALL)
 _OBJ_BLOCK = re.compile(r"\{.*\}", re.DOTALL)
 
 
-def parse_completion(completion: str) -> list[dict]:
+# The branches ARE the contract: three completion shapes, each with its own
+# failure mode.
+def parse_completion(completion: str) -> list[dict]:  # noqa: PLR0912
     """Tolerant JSON parser: extract query items from the completion.
 
     Handles three cases:
@@ -331,6 +333,6 @@ def generate_for_pages(
             out.extend(generate_for_page(page, llm, n_per_page, query_mode,
                                          few_shot=few_shot, use_guided_json=use_guided_json,
                                          query_language=query_language))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             print(f"[gen] skip {page.pdf_path}#{page.page_number}: {exc}", flush=True)
     return out

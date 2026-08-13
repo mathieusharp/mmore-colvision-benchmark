@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import csv
 import io
+import random
 import tarfile
 import time
 from collections.abc import Iterable, Iterator
@@ -185,8 +186,6 @@ def sample_packages(
     re-streaming the index during download — critical on slow cluster networks.
     Memory-safe; ``scan_limit`` caps how many index rows are scanned.
     """
-    import random
-
     rng = random.Random(seed)
     owns_client = client is None
     client = client or httpx.Client(follow_redirects=True)

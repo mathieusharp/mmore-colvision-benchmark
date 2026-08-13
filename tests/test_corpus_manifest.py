@@ -25,7 +25,7 @@ def test_sha256_file_is_deterministic(tmp_path: Path):
 
 
 def test_pdf_entry_visual_density_bounds():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         PdfEntry(
             pdf_path="x.pdf",
             sha256="0" * 64,

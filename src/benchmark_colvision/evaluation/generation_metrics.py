@@ -61,9 +61,9 @@ def score_samples(
         return GenerationMetricsResult(n_examples=0, judge_model=judge_model)
 
     try:
-        from datasets import Dataset  # type: ignore[import-not-found]
-        from ragas import evaluate  # type: ignore[import-not-found]
-        from ragas import metrics as ragas_metrics  # type: ignore[import-not-found]
+        from datasets import Dataset  # noqa: PLC0415
+        from ragas import evaluate  # noqa: PLC0415
+        from ragas import metrics as ragas_metrics  # noqa: PLC0415
     except ImportError as e:
         raise RuntimeError(
             "ragas / datasets not installed — install the project with `uv sync` first"

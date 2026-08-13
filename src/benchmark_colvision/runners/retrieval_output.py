@@ -1,7 +1,7 @@
 """Read the JSON written by `mmore colpali retrieve -o <output>` and convert
 it to the per-query ranked lists the metrics module consumes.
 
-The exact JSON layout produced by mmore PR #305 is one of:
+The exact JSON layout produced by mmore's ColVision retrieval path is one of:
 
 * a list of `{query, results: [{document_id|doc_id|page_id|page, score, ...}, ...]}`
 * a dict `{query -> [{doc_id, score}, ...]}`

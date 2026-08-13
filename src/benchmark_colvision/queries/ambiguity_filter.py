@@ -13,22 +13,22 @@ from dataclasses import dataclass
 from benchmark_colvision.queries.inverse_query_gen import LLMClient
 from benchmark_colvision.queries.schema import SyntheticQuery
 
-AMBIGUITY_PROMPT = """Tu es un évaluateur. Voici une question médicale et la page
-source qui a servi à la générer.
+AMBIGUITY_PROMPT = """You are a judge. Below are a medical question and the
+source page it was written from.
 
-Question : {question}
+Question: {question}
 
-Page source (texte) :
+Source page (text):
 ---
 {page_text}
 ---
 
-Évalue, sur une échelle de 0 à 1, si cette question :
-1. est suffisamment précise pour avoir une seule bonne page-source,
-2. nécessite réellement de consulter CETTE page (et pas une autre).
+Rate, on a scale from 0 to 1, whether this question:
+1. is specific enough to have a single correct source page,
+2. genuinely requires reading THIS page rather than any other.
 
-Réponds uniquement par un nombre entre 0 et 1, sans texte additionnel.
-Confiance :"""
+Answer with a number between 0 and 1 and nothing else.
+Confidence:"""
 
 
 _NUMBER = re.compile(r"(\d+(?:\.\d+)?)")

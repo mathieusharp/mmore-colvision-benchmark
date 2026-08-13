@@ -52,41 +52,26 @@ VIDORE_LANG_LABELS = {"english": "EN", "french": "FR", "german": "DE", "spanish"
 # The figures are rendered in English for BOTH outputs, on purpose: the same
 # files are embedded in the French report and in the English README, and the
 # report's eventual English translation will not regenerate them. Keeping one
-# English set means no figure ever contradicts the document around it. The
-# French strings are kept below in case that decision is revisited.
-LANG = "en"
-STRINGS = {
-    "quality": {"fr": "(a) Qualité de recherche", "en": "(a) Retrieval quality"},
-    "cost": {"fr": "(b) Coût d'une requête", "en": "(b) Cost of one query"},
-    "cost_axis": {"fr": "temps de recherche par requête (s)",
-                  "en": "retrieval time per query (s)"},
-    "query_lang_axis": {"fr": "langue de la requête", "en": "query language"},
-    "big_four": {"fr": "4 gros encodeurs", "en": "4 large encoders"},
-    "colsmol": {"fr": "ColSmol", "en": "ColSmol"},
-}
-
-
-def t(key: str) -> str:
-    return STRINGS[key][LANG]
+# English set means no figure ever contradicts the document around it.
 
 
 def num(value: float, digits: int) -> str:
-    """Format a number for the current language (French uses a decimal comma)."""
-    out = f"{value:.{digits}f}"
-    return out.replace(".", ",") if LANG == "fr" else out
+    """Format a number for a figure label."""
+    return f"{value:.{digits}f}"
 
-# La couleur code la FAMILLE DE DORSALE, pas le rang ni la taille : les deux
-# ColQwen partagent une teinte, les deux ColSmol une autre. C'est la seule
-# partition des six qui soit une propriété des modèles et non de leurs scores,
-# donc la seule qui ne se repeigne pas quand les chiffres bougent.
-# Palette validée par scripts/validate_palette.js de la skill dataviz, en mode
-# all-pairs (la figure 2 est un nuage : toutes les paires se voisinent) : pire
-# écart CVD 11,0 et vision normale 16,3, au-dessus des planchers de 8 et 15.
-# Le rouge est la seule quatrième teinte retenue : l'orange, le marron et le
-# framboise ont été écartés par Mathieu, un second violet échoue (ΔE 3,8 contre
-# celui de Gemma-3) et le teal aussi. L'aqua passe sous 3:1 de contraste, ce que
-# couvrent l'étiquetage direct des figures 1 et 2 et les styles de trait de la
-# figure 3. Les pipelines textuels restent en gris : une référence, pas une série.
+
+# Colour encodes the BACKBONE FAMILY, not rank nor size: the two ColQwen models
+# share a hue, the two ColSmol ones another. That is the only partition of the
+# six that is a property of the models rather than of their scores, so the only
+# one that does not repaint itself when the numbers move.
+# The palette is validated by scripts/validate_palette.js of the dataviz skill,
+# in all-pairs mode (figure 2 is a scatter: every pair can end up adjacent):
+# worst-case separation 11.0 under CVD and 16.3 under normal vision, above the
+# floors of 8 and 15. Red is the only fourth hue that survived: orange, brown
+# and raspberry were rejected by Mathieu, a second purple fails (dE 3.8 against
+# the Gemma-3 one) and so does teal. Aqua falls under 3:1 contrast, which the
+# direct labelling of figures 1 and 2 and the line styles of figure 3 cover.
+# The text pipelines stay grey: a reference, not a series.
 FAMILIES = ["qwen", "gemma3", "paligemma", "smolvlm"]
 FAMILY_OF = {
     "colqwen2_5_v0_2": "qwen",
@@ -124,10 +109,10 @@ LIGHT = Theme(
     bg="white", ink="#111111", ink_2="#333333", muted="#5a5a5a",
     ref="#7d7b76", ref_soft="#d7d5cf",
     hues=dict(qwen="#2a78d6", gemma3="#4a3aa7", paligemma="#1baf7a", smolvlm="#d32f2f"),
-    # Rampe séquentielle bleue, clair -> foncé. Une rampe neutre a été essayée
-    # pour éviter que le bleu se lise comme « famille ColQwen » ; rendue, elle
-    # est nettement moins lisible, et la carte code une magnitude, pas une
-    # identité, donc la confusion reste théorique. Décision de Mathieu : bleu.
+    # Blue sequential ramp, light -> dark. A neutral ramp was tried, to keep the
+    # blue from reading as "the ColQwen family"; rendered, it is markedly harder
+    # to read, and the heatmap encodes a magnitude rather than an identity, so
+    # the confusion stays theoretical. Mathieu's call: blue.
     seq=["#eff5fd", "#dde9fa", "#c9dcf6", "#b4cef2", "#9ec0ee", "#88b2e9",
          "#72a4e4", "#5c96de", "#4784cd", "#3671b8", "#2960a6", "#1d4f96"],
 )
@@ -354,7 +339,7 @@ def fig_retrieval_cost() -> None:
     lo = min([*scores.values(), *refs.values()])
     hi = max(scores.values())
     ax.set_ylim(lo - 0.06, hi + 0.04)
-    ax.set_xlabel(t("cost_axis"))
+    ax.set_xlabel("retrieval time per query (s)")
     ax.set_ylabel("nDCG@5")
     bare(ax, grid_axis="both")
 
@@ -395,7 +380,7 @@ def fig_query_language() -> None:
     ax.set_xlim(-0.08, len(steps) - 0.92)
     ax.set_ylim(0, 0.92)
     ax.set_ylabel("nDCG@5")
-    ax.set_xlabel(t("query_lang_axis"))
+    ax.set_xlabel("query language")
     bare(ax)
     save(fig, "query_language",
          "Only the small encoders lose the query language",

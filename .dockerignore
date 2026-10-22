@@ -23,7 +23,6 @@ htmlcov/
 # IDE & editor
 .idea/
 .vscode/
-.claude/
 
 # Project artefacts that don't belong in the image
 results/

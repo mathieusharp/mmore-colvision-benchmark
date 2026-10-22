@@ -76,5 +76,8 @@ logs/
 tmp/
 *.tmp
 
+# Local tooling artefacts
+.claude/
+
 # Auto-generated per-user RCP config (output of scripts/rcp/setup.sh)
 .rcp-env

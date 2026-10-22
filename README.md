@@ -1,5 +1,8 @@
 # Does visual document retrieval actually beat text retrieval?
 
+> Cassiopée research project, Télécom SudParis × EPFL LiGHT.  
+> Every model was run on EPFL's RCP GPU cluster.
+
 Six **ColVision** multi-vector encoders (ColPali, ColQwen2, ColQwen2.5, ColGemma3,
 ColSmol-256M/500M) benchmarked against two text retrieval pipelines inside a single
 frozen RAG stack — [mmore](https://github.com/swiss-ai/mmore) — across three corpora
@@ -9,8 +12,6 @@ reimplementation.
 
 The headline is not a ranking. **Whether text or vision wins depends on how the query
 set was written** — and most published comparisons never say.
-
-Academic project (Cassiopée), Télécom SudParis, run on EPFL LiGHT's Run:AI cluster.
 
 **Two experiments.** The first runs on figure-rich biomedical lecture slides, with
 questions written by a model *looking at the page* and validated by humans

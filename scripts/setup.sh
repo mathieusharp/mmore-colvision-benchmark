@@ -31,7 +31,7 @@ case "${MODE}" in
     EXTRAS=("--extra" "dev" "--extra" "gpu")
     ;;
   local|--local|"")
-    EXTRAS=("--all-extras" "--extra" "dev")
+    EXTRAS=("--extra" "dev")
     ;;
   *)
     echo "Unknown mode: ${MODE}" >&2

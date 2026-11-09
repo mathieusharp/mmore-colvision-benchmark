@@ -316,11 +316,16 @@ def fig_retrieval_cost() -> None:
     # The two text pipelines are the comparison the whole report turns on, so
     # the cost plot carries them too — as rules, not as points: they have no
     # cost on this axis.
+    # The two rules are close: the lower label goes under its rule so that
+    # neither label is crossed by the other rule.
+    lowest = min(refs.values())
     for label, value in refs.items():
         ax.axhline(value, color=REF, linewidth=0.8, linestyle=(0, (3, 2)),
                    zorder=1)
+        below = value == lowest
         ax.annotate(label, (0.35, value), textcoords="offset points",
-                    xytext=(0, 3), ha="left", va="bottom", fontsize=6.8,
+                    xytext=(0, -3 if below else 3), ha="left",
+                    va="top" if below else "bottom", fontsize=6.8,
                     color=REF, style="italic")
 
     # One convention: the label sits to the right of its point, at a fixed
@@ -410,6 +415,8 @@ def fig_multilingual_heatmap() -> None:
     fig, ax = plt.subplots(figsize=(3.35, 2.75))
     ax.imshow(values, cmap=cmap, norm=norm, aspect="auto")
 
+    # The best encoder of each language is set in bold.
+    best = [max(values[i][j] for i in range(len(MODELS))) for j in range(len(LANGS))]
     for i, (_, vals) in enumerate(rows):
         for j, v in enumerate(vals):
             ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False,
@@ -417,7 +424,8 @@ def fig_multilingual_heatmap() -> None:
             # Ink on the pale cells, canvas colour on the saturated ones —
             # picked by distance, so it holds whichever way the ramp runs.
             ax.text(j, i, num(v, 2), ha="center", va="center", fontsize=7.6,
-                    zorder=3, color=readable_on(cmap(norm(v))))
+                    zorder=3, color=readable_on(cmap(norm(v))),
+                    fontweight="bold" if i < len(MODELS) and v == best[j] else "normal")
 
     ax.set_xticks(range(len(LANGS)))
     ax.set_xticklabels([LANG_LABELS[lang] for lang in LANGS], color=INK_2)

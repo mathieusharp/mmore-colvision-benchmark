@@ -81,3 +81,6 @@ tmp/
 
 # Auto-generated per-user RCP config (output of scripts/rcp/setup.sh)
 .rcp-env
+
+# The paper is published with the code
+!paper/*.pdf
